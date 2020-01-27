@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <title> Ractive Sandbox </title>
+</head>
+<body>
+    <div class="container">
+        <div id="app"> </div>
+    </div>
+    <script id="template" type="text/ractive">
+        <h1 style="color: {{color}} ">{{greeting}}  my name is {{name}}!</h1>
+        {{#if showAddress}}
+            <ul>
+                {{#address}}
+                <li> {{street}} </li>
+                <li> {{city}} </li>
+                <li> {{state}} </li>
+                {{/address}}
+            </ul>
+        {{else}}
+          <p> Address hidden </p> 
+        {{/if}}
+
+        <button on-click="showAddress" class="btn-info"> 
+            {{#if showAddress}}
+                Hide Address 
+            {{else}}
+                show Address
+            {{/if}}
+        </button>
+        <h3> Friends </h3>
+        <ul>
+        {{#friends}}
+            <li> {{name}} - {{age}} </li>
+        {{/friends}}
+        </ul>
+
+        <Jobs />
+    </script>
+
+    <script id="jobs" type="text/ractive">
+        <h3> Work history </h3>
+        <table class="table">
+            <tr>
+                <th> ID </th>
+                <th> Company </th>
+                <th> Job Title </th>
+                <th> Years </th>
+            </tr>
+            {{#each jobs:i}}
+                <tr>
+                    <td> {{i}} </td>
+                    <td> {{company}} </td>
+                    <td>  {{title}} </td>
+                    <td> {{years}} </td>
+                </tr>
+            {{/each}}
+        </table>
+        <h3> Add Job </h3>
+        <form on-submit="addJob">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Add Company" value="{{jobCompany}}" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Add Title" value="{{jobTitle}}" />
+            </div>
+            <div class="form-group">
+            <input type="text" class="form-control" placeholder="Add Years" value="{{jobYears}}" />
+            </div>
+            <div class="form-group">
+            <input type="submit" class="btn-default" value="Submit"/>
+            </div>
+        </form>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/ractive"></script>
+    <script>
+        var Jobs = Ractive.extend({
+            template: '#jobs',
+            isolated:true,
+            oninit: function() {
+                this.on('addJob',function(){
+                    var newJob = {
+                        company: this.get('jobCompany'),
+                        title: this.get('jobTitle'),
+                        years: this.get('jobYears')
+                    }
+                    this.push('jobs', newJob);
+                    this.set('jobCompany', '');
+                    this.set('jobTitle', '');
+                    this.set('jobYears', '');
+                return false;
+                })
+            }, 
+            data: {
+                jobs: [
+                    {
+                        company: '123 Web Design',
+                        title: 'Senior Web Developer',
+                        years: 3
+                    },
+                    {
+                        company: 'Traversy Media',
+                        title: 'React Developer',
+                        years: 2
+                    },
+                    {
+                        company: 'Tech Guy',
+                        title: 'Full Stack Web Developer',
+                        years: 4
+                    },
+                    {
+                        company: 'Alinga',
+                        title: 'Node Developer',
+                        years: 5
+                    }
+                ],
+                jobCompany: '',
+                jobTitle: '',
+                jobYears: ''
+            }
+        });
+
+        var ractive = new Ractive({
+        target: '#app',
+        template: '#template',
+        components: {Jobs: Jobs},
+        data: {
+            greeting: 'Hello!', 
+            name: 'Shakti',
+            color: 'green',
+            address: {
+                street: '172 main st',
+                city: 'Sydney',
+                state: 'NSW'
+            },
+            friends: [
+                {
+                    name: 'John',
+                    age: 35
+                },
+                {
+                    name: 'Jack',
+                    age: 36
+                },
+                {
+                    name: 'Jasmine',
+                    age: 34
+                }
+            ],
+            showAddress: false
+        }
+        });
+
+        ractive.set('color', '#18A2B8');
+
+        //console.log(ractive.get('name'));
+
+     
+       // ractive.splice('jobs', 2, 1);
+
+       ractive.set('name', 'Michael');
+       
+       ractive.observe('name', function(newValue, oldValue, keypath){
+           console.log(keypath + ' changed to ' + newValue);
+       });
+
+       ractive.on('showAddress', function(){
+           ractive.toggle('showAddress');
+       })
+
+    </script>
+</body>
+</html>
